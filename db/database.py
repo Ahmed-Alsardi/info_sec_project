@@ -33,6 +33,7 @@ class DB:
             from_user varchar(63) NOT NULL,
             send_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
             message BYTEA NOT NULL,
+            message_nonce BYTEA NOT NULL,
             session_key varchar(2048) NOT NULL,
             file_type VARCHAR(31) NOT NULL,
             FOREIGN KEY (to_user) REFERENCES app_users(username),

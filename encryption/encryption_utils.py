@@ -38,7 +38,7 @@ class EncryptionUtils:
         return cipher_aes.nonce, ciphertext
 
     @staticmethod
-    def decrypt_message_with_session_key(message: bytes, session_key: bytes, nonce: bytes) -> bytes:
+    def decrypt_message_with_session_key(cipher_text: bytes, session_key: bytes, nonce: bytes) -> bytes:
         cipher_aes = AES.new(session_key, AES.MODE_CTR, nonce=nonce)
         plaintext = cipher_aes.decrypt(message)
         return plaintext
