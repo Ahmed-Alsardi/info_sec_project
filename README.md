@@ -7,8 +7,6 @@
   - 1: encrypt(plaintext)
   - 2: decrypt(ciphertext)
 - DB:
-  - db connection:
-  - schema
   - add_user(username:str, password:str)
   - get_user_by_username(username:str)
   - add_user_public_key(username:str, public_key:str)

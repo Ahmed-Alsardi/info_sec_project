@@ -39,6 +39,11 @@ class DB:
             FOREIGN KEY (from_user) REFERENCES app_users(username))
             """)
 
+    def add_user(self, username, password):
+        with self.conn.cursor() as cur:
+            cur.execute("INSERT INTO app_users(username, password) VALUES(%s, %s)", (username, password))
+        self.conn.commit()
+
 
 if __name__ == "__main__":
     db = DB("infosec", "infosec", "infosec", "localhost", "5435")
