@@ -44,6 +44,35 @@ class DB:
             cur.execute("INSERT INTO app_users(username, password) VALUES(%s, %s)", (username, password))
         self.conn.commit()
 
+    def get_user_by_username(self, username):
+        with self.conn.cursor() as cur:
+            cur.execute("SELECT * FROM app_users WHERE username = '%s'", (username))
+        self.conn.commit()
+    
+    def add_user_public_key(self, username, public_key):
+        with self.conn.cursor() as cur:
+            cur.execute("INSERT INTO app_public_keys(username, public_key) VALUES(%s, %s)", (username, public_key))
+        self.conn.commit()
+    
+    def get_user_by_username(self, username):
+        with self.conn.cursor() as cur:
+            cur.execute("SELECT public_key FROM app_public_keys WHERE username = '%s'", (username))
+        self.conn.commit()
+    
+    def send_user_message(self, from_user, message, file_type, to_user, session_key):
+        with self.conn.cursor() as cur:
+            cur.execute("INSERT INTO app_messages(from_user, message, file_type, to_user, session_key) VALUES(%s, %s, %s, %s, %s)", (from_user, message, file_type, to_user, session_key))
+        self.conn.commit()
+    
+    def get_user_messages(self, username):
+        with self.conn.cursor() as cur:
+            cur.execute("SELECT message FROM app_messages WHERE username = '%s'", (username))
+        self.conn.commit()
+    
+    def get_user_messages(self, username, message_id):
+        with self.conn.cursor() as cur:
+            cur.execute("SELECT message FROM app_messages WHERE username = '%s', id = %s", (username, message_id))
+        self.conn.commit()
 
 if __name__ == "__main__":
     db = DB("infosec", "infosec", "infosec", "localhost", "5435")
