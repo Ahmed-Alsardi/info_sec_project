@@ -47,7 +47,7 @@ class DB:
     def get_user_by_username(self, username):
         with self.conn.cursor() as cur:
             cur.execute("SELECT * FROM app_users WHERE username = '%s'", (username))
-            cur.fetchall()
+            return cur.fetchall()
     
     def add_user_public_key(self, username, public_key):
         with self.conn.cursor() as cur:
@@ -57,7 +57,7 @@ class DB:
     def get_user_public_key(self, username):
         with self.conn.cursor() as cur:
             cur.execute("SELECT * FROM app_public_keys WHERE username = '%s'", (username))
-            cur.fetchall()
+            return cur.fetchall()
     
     def send_user_message(self, from_user, message, file_type, to_user, session_key):
         with self.conn.cursor() as cur:
@@ -67,12 +67,12 @@ class DB:
     def get_user_messages(self, username):
         with self.conn.cursor() as cur:
             cur.execute("SELECT * FROM app_messages WHERE to_user = '%s'", (username))
-            cur.fetchall()
+            return cur.fetchall()
     
     def get_user_messages_by_id(self, message_id):
         with self.conn.cursor() as cur:
             cur.execute("SELECT * FROM app_messages WHERE id = %s", (message_id))
-            cur.fetchall()
+            return cur.fetchall()
 
 if __name__ == "__main__":
     db = DB("infosec", "infosec", "infosec", "localhost", "5435")
