@@ -1,0 +1,6 @@
+bcrypt==3.2.0
+cffi==1.15.0
+psycopg2==2.9.3
+pycparser==2.21
+pycryptodome==3.14.1
+six==1.16.0
