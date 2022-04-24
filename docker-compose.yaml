@@ -8,3 +8,5 @@ services:
     - POSTGRES_DB=infosec
     - POSTGRES_USER=infosec
     - POSTGRES_PASSWORD=infosec
+   ports:
+    - "5435:5432"
