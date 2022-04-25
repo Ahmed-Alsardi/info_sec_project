@@ -3,8 +3,9 @@ import logging
 
 logging.basicConfig(level=logging.INFO)
 
+
 class DB:
-    def __init__(self, db_name, db_user, db_password, db_host, db_port):
+    def __init__(self, db_name="infosec", db_user="infosec", db_password="infosec", db_host="localhost", db_port=5435):
         try:
             self.conn = psycopg2.connect(dbname=db_name, user=db_user, password=db_password, host=db_host, port=db_port)
         except Exception as e:
@@ -48,27 +49,30 @@ class DB:
         with self.conn.cursor() as cur:
             cur.execute("SELECT username, password FROM app_users WHERE username = %s", (username,))
             return cur.fetchall()
-    
+
     def add_user_public_key(self, username, public_key):
         with self.conn.cursor() as cur:
             cur.execute("INSERT INTO app_public_keys(username, public_key) VALUES(%s, %s)", (username, public_key))
         self.conn.commit()
-    
+
     def get_user_public_key(self, username):
         with self.conn.cursor() as cur:
             cur.execute("SELECT public_key FROM app_public_keys WHERE username = %s", (username,))
             return cur.fetchall()
-    
+
     def send_user_message(self, from_user, message_uuid, file_type, to_user, session_key):
         with self.conn.cursor() as cur:
-            cur.execute("INSERT INTO app_messages(from_user, message_uuid, file_type, to_user, session_key) VALUES(%s, %s, %s, %s, %s)", (from_user, message_uuid, file_type, to_user, session_key))
+            cur.execute(
+                "INSERT INTO app_messages(from_user, message_uuid, file_type, to_user, session_key) VALUES(%s, %s, %s, %s, %s)",
+                (from_user, message_uuid, file_type, to_user, session_key))
         self.conn.commit()
-    
+
     def get_user_messages(self, username):
         with self.conn.cursor() as cur:
-            cur.execute("SELECT to_user, message_uuid, file_type, send_at FROM app_messages WHERE to_user = %s", (username,))
+            cur.execute("SELECT to_user, message_uuid, file_type, send_at FROM app_messages WHERE to_user = %s",
+                        (username,))
             return cur.fetchall()
-    
+
 
 if __name__ == "__main__":
     db = DB("infosec", "infosec", "infosec", "localhost", "5435")

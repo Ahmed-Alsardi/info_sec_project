@@ -1,5 +1,5 @@
 import os
-# from typing import Tuple
+import bcrypt
 from encryption.encryption_utils import EncryptionUtils as utils
 from Crypto.Hash import SHA3_256
 import logging
@@ -21,6 +21,14 @@ class EncryptionContext:
             self._init_user_context()
         else:
             self._load_user_context()
+
+    @staticmethod
+    def hash_password(password: str) -> str:
+        return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+
+    @staticmethod
+    def check_password(password, hashed_password) -> bool:
+        return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
 
     @property
     def public_key(self) -> str:
@@ -46,11 +54,11 @@ class EncryptionContext:
             self.__private_key = f.read()
         logging.info(f"loaded user context for {self.username}")
 
-    def encrypt_message(self, message: bytes, recipient_public_key: bytes) -> tuple[bytes, bytes, bytes]:
+    def encrypt_message(self, message: bytes, recipient_public_key: bytes) -> tuple[tuple[bytes, bytes], bytes]:
         session_key = utils.generate_session_key()
-        cipher_nonce, cipher_text = utils.encrypt_message_with_session_key(message, session_key)
+        cipher_text = utils.encrypt_message_with_session_key(message, session_key)
         enc_session_key = utils.encrypt_session_key_with_public_key(session_key, recipient_public_key)
-        return cipher_nonce, cipher_text, enc_session_key
+        return cipher_text, enc_session_key
 
     def decrypt_message(self, cipher_text: bytes, cipher_nonce: bytes, enc_session_key: bytes) -> bytes:
         session_key = utils.decrypt_session_key_with_private_key(enc_session_key,
