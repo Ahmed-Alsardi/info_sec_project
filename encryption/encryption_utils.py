@@ -40,7 +40,7 @@ class EncryptionUtils:
     @staticmethod
     def decrypt_message_with_session_key(cipher_text: bytes, session_key: bytes, nonce: bytes) -> bytes:
         cipher_aes = AES.new(session_key, AES.MODE_CTR, nonce=nonce)
-        plaintext = cipher_aes.decrypt(message)
+        plaintext = cipher_aes.decrypt(cipher_text)
         return plaintext
 
     @staticmethod

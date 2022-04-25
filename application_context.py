@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 import logging
 from db.database import DB
 from encryption.encryption_context import EncryptionContext
@@ -6,6 +6,7 @@ from psycopg2.errors import UniqueViolation
 from dataclasses import dataclass
 import uuid
 import os
+from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
 
@@ -14,6 +15,16 @@ logging.basicConfig(level=logging.INFO)
 class UserContext:
     username: Optional[str] = None
     enc_context: Optional[EncryptionContext] = None
+
+
+@dataclass
+class UserMessage:
+    from_user: str
+    to_user: str
+    send_at: datetime
+    file_uuid: str
+    file_type: str
+    session_key: str
 
 
 class ApplicationContext:
@@ -65,7 +76,7 @@ class ApplicationContext:
             logging.info("User {} does not exist".format(to_user))
             return
         cipher_text, session_key = self.__user_context.enc_context.encrypt_message(message=file,
-                                                                       receiver_public_key=receiver_public_key)
+                                                                                   receiver_public_key=receiver_public_key)
         file_uuid = str(uuid.uuid4())
         self._save_file(cipher_text, file_uuid)
         self.__db.send_user_message(
@@ -78,7 +89,32 @@ class ApplicationContext:
         logging.info("Message sent successfully")
 
     def get_messages(self):
-        pass
+        if self.__user_context is None:
+            logging.info("User is not logged in")
+            return
+        rows = self.__db.get_user_messages(self.__user_context.username)
+        messages: List[UserMessage] = []
+        for row in rows:
+            m = UserMessage(from_user=self.__user_context.username,
+                            to_user=row[0],
+                            file_uuid=row[1],
+                            file_type=row[2],
+                            send_at=row[3],
+                            session_key=row[4])
+            messages.append(m)
+            print(m)
+        return messages
+
+    def download_message(self, message_uuid, session_key):
+        nonce, cipher_text = self._load_file(message_uuid)
+        if cipher_text is None:
+            logging.info("Message {} does not exist".format(message_uuid))
+            return
+        decrypted_message = self.__user_context.enc_context.decrypt_message(cipher_text=cipher_text,
+                                                                            enc_session_key=session_key,
+                                                                            cipher_nonce=nonce)
+        logging.info("Message {} downloaded successfully".format(message_uuid))
+        return decrypted_message
 
     @property
     def username(self):
@@ -87,7 +123,16 @@ class ApplicationContext:
     def _save_file(self, cipher_text, file_uuid):
         path = os.path.dirname(__file__)
         with open(f"{path}/encryption/media/{file_uuid}.bin", "wb") as f:
+            print(f"1: {len(cipher_text[0])}\n2: {len(cipher_text[1])}")
             [f.write(chunk) for chunk in cipher_text]
+
+    def _load_file(self, message_uuid):
+        path = os.path.dirname(__file__)
+        with open(f"{path}/encryption/media/{message_uuid}.bin", "rb") as f:
+            nonce = f.read(8)
+            cipher_text = f.read()
+            print(f"1: {len(cipher_text)}\n2: {len(nonce)}")
+        return nonce, cipher_text
 
 
 if __name__ == "__main__":
@@ -98,6 +143,9 @@ if __name__ == "__main__":
     # app_context.register("test1", password)
     # app_context.register("test2", password)
     app_context.login(username, password)
-    app_context.send_message(to_user="test2", file=b"Hello, World!", file_type="text")
+    app_context.send_message(to_user="test1", file=b"Hello, World555555555555!", file_type="text")
+    messages = app_context.get_messages()
+    for message in messages:
+        app_context.download_message(message.file_uuid, message.session_key)
 
     # print(app_context.username)

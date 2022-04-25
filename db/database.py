@@ -69,7 +69,7 @@ class DB:
 
     def get_user_messages(self, username):
         with self.conn.cursor() as cur:
-            cur.execute("SELECT to_user, message_uuid, file_type, send_at FROM app_messages WHERE to_user = %s",
+            cur.execute("SELECT to_user, message_uuid, file_type, send_at, session_key FROM app_messages WHERE to_user = %s",
                         (username,))
             return cur.fetchall()
 
