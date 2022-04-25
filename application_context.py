@@ -134,18 +134,19 @@ class ApplicationContext:
             print(f"1: {len(cipher_text)}\n2: {len(nonce)}")
         return nonce, cipher_text
 
+    @property
+    def get_public_key(self):
+        return self.__user_context.enc_context.public_key
+
 
 if __name__ == "__main__":
-    username = "test1"
+    username = "test12"
     password = "test"
     app_context = ApplicationContext()
-    # app_context.register("tes3", password)
-    # app_context.register("test1", password)
-    # app_context.register("test2", password)
+    # app_context.register(username=username, password=password)
     app_context.login(username, password)
-    app_context.send_message(to_user="test1", file=b"Hello, World555555555555!", file_type="text")
-    messages = app_context.get_messages()
-    for message in messages:
-        app_context.download_message(message.file_uuid, message.session_key)
-
-    # print(app_context.username)
+    public_key = app_context.get_public_key
+    enc_context = EncryptionContext(False, username, password, public_key)
+    cipher, session_key = enc_context.encrypt_message(b"test", public_key)
+    plain_text = enc_context.decrypt_message(cipher[0], cipher[1], session_key)
+    print(cipher)

@@ -39,22 +39,22 @@ class EncryptionContext:
         return self.__username
 
     def _init_user_context(self):
-        public_key, private_key = utils.generate_public_private_keys(self.__user_passphrase)
-        self.__public_key = public_key
+        rsa_public_key, private_key = utils.generate_public_private_keys(self.__user_passphrase)
+        self.__public_key = rsa_public_key
         self.__private_key = private_key
         path = os.path.dirname(__file__)
-        with open(f"{path}/keys/{self.username}_pk.key", "wb") as f:
+        with open(f"{path}/keys/{self.username}_pk.pem", "wb") as f:
             f.write(private_key)
         logging.info(f"created new user context for {self.username}")
 
     def _load_user_context(self):
         assert self.public_key is not None
         path = os.path.dirname(__file__)
-        with open(f"{path}/keys/{self.username}_pk.key", "rb") as f:
-            self.__private_key = f.read()
+        self.__private_key = open(f"{path}/keys/{self.username}_pk.pem", "rb").read()
         logging.info(f"loaded user context for {self.username}")
 
-    def encrypt_message(self, message: bytes, receiver_public_key: bytes) -> tuple[tuple[bytes, bytes], bytes]:
+    @staticmethod
+    def encrypt_message(message: bytes, receiver_public_key: bytes) -> tuple[tuple[bytes, bytes], bytes]:
         session_key = utils.generate_session_key()
         cipher_text = utils.encrypt_message_with_session_key(message, session_key)
         enc_session_key = utils.encrypt_session_key_with_public_key(session_key, receiver_public_key)
