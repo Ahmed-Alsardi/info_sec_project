@@ -31,7 +31,7 @@ class EncryptionContext:
         return bcrypt.checkpw(password.encode('utf-8'), hashed_password.encode('utf-8'))
 
     @property
-    def public_key(self) -> str:
+    def public_key(self) -> bytes:
         return self.__public_key
 
     @property
@@ -54,10 +54,10 @@ class EncryptionContext:
             self.__private_key = f.read()
         logging.info(f"loaded user context for {self.username}")
 
-    def encrypt_message(self, message: bytes, recipient_public_key: bytes) -> tuple[tuple[bytes, bytes], bytes]:
+    def encrypt_message(self, message: bytes, receiver_public_key: bytes) -> tuple[tuple[bytes, bytes], bytes]:
         session_key = utils.generate_session_key()
         cipher_text = utils.encrypt_message_with_session_key(message, session_key)
-        enc_session_key = utils.encrypt_session_key_with_public_key(session_key, recipient_public_key)
+        enc_session_key = utils.encrypt_session_key_with_public_key(session_key, receiver_public_key)
         return cipher_text, enc_session_key
 
     def decrypt_message(self, cipher_text: bytes, cipher_nonce: bytes, enc_session_key: bytes) -> bytes:
