@@ -32,7 +32,7 @@ class DB:
             to_user varchar(63) NOT NULL,
             from_user varchar(63) NOT NULL,
             send_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            message BYTEA NOT NULL,
+            message_uuid varchar(63) NOT NULL,
             session_key varchar(2048) NOT NULL,
             file_type VARCHAR(31) NOT NULL,
             FOREIGN KEY (to_user) REFERENCES app_users(username),
@@ -46,7 +46,7 @@ class DB:
 
     def get_user_by_username(self, username):
         with self.conn.cursor() as cur:
-            cur.execute("SELECT * FROM app_users WHERE username = '%s'", (username))
+            cur.execute("SELECT username, password FROM app_users WHERE username = %s", (username,))
             return cur.fetchall()
     
     def add_user_public_key(self, username, public_key):
@@ -56,23 +56,19 @@ class DB:
     
     def get_user_public_key(self, username):
         with self.conn.cursor() as cur:
-            cur.execute("SELECT * FROM app_public_keys WHERE username = '%s'", (username))
+            cur.execute("SELECT public_key FROM app_public_keys WHERE username = %s", (username,))
             return cur.fetchall()
     
-    def send_user_message(self, from_user, message, file_type, to_user, session_key):
+    def send_user_message(self, from_user, message_uuid, file_type, to_user, session_key):
         with self.conn.cursor() as cur:
-            cur.execute("INSERT INTO app_messages(from_user, message, file_type, to_user, session_key) VALUES(%s, %s, %s, %s, %s)", (from_user, message, file_type, to_user, session_key))
+            cur.execute("INSERT INTO app_messages(from_user, message_uuid, file_type, to_user, session_key) VALUES(%s, %s, %s, %s, %s)", (from_user, message_uuid, file_type, to_user, session_key))
         self.conn.commit()
     
     def get_user_messages(self, username):
         with self.conn.cursor() as cur:
-            cur.execute("SELECT * FROM app_messages WHERE to_user = '%s'", (username))
+            cur.execute("SELECT to_user, message_uuid, file_type, send_at FROM app_messages WHERE to_user = %s", (username,))
             return cur.fetchall()
     
-    def get_user_messages_by_id(self, message_id):
-        with self.conn.cursor() as cur:
-            cur.execute("SELECT * FROM app_messages WHERE id = %s", (message_id))
-            return cur.fetchall()
 
 if __name__ == "__main__":
     db = DB("infosec", "infosec", "infosec", "localhost", "5435")
