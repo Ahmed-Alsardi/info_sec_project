@@ -87,7 +87,7 @@ class ApplicationContext:
     def _save_file(self, cipher_text, file_uuid):
         path = os.path.dirname(__file__)
         with open(f"{path}/encryption/media/{file_uuid}.bin", "wb") as f:
-            f.write(cipher_text)
+            [f.write(chunk) for chunk in cipher_text]
 
 
 if __name__ == "__main__":
