@@ -1,51 +1,62 @@
 import tkinter as tk
 import logging
+from UI.utility import BLACK, WHITE
+from typing import List
 
-logging.basicConfig(level=logging.INFO)
+logging.basicConfig(level=logging.INFO, format=' %(asctime)s - %(levelname)s - %(message)s')
 
 
 class HeaderView(tk.Frame):
-    def __init__(self, parent):
-        tk.Frame.__init__(self, parent, width=800, height=100, background="#3df5e5")
-        self.welcome_user = tk.Label(self, text=f"Welcome: Ahmed")
-        self.my_message = tk.Button(
-            self, text="My Message", command=self.show_my_message
-        )
+    def __init__(self, parent, width: int, height: int, username: str, bg, text_color):
+        tk.Frame.__init__(self, parent, width=width, height=height, background=bg)
+        self.frame_width = width
+        self.frame_height = height
+        self.username = username
+        self.bg = bg
+        self.text_color = text_color
+        # create label welcome username
+        self.label_welcome = tk.Label(self, text=f"Welcome: {self.username}", bg=bg, fg=text_color)
+        self.label_welcome.grid(row=0, column=0, columnspan=2, sticky="w", padx=20, pady=20)
+        # create my message button
+        self.button_my_message = tk.Button(self, text="My Message",
+                                           command=self.my_message)
+        self.button_my_message.grid(row=0, column=2, columnspan=2, sticky="e", padx=20, pady=20)
+        self.pack(fill=tk.BOTH, )
 
-    def show_my_message(self):
-        logging.info("Show my message")
-
-    def pack_widgets(self):
-        self.welcome_user.pack(side=tk.LEFT, padx=50)
-        self.my_message.pack(side=tk.RIGHT, padx=50)
+    def my_message(self):
+        logging.info("My message button clicked")
 
 
-class SideBarView(tk.Frame):
-    def __init__(self, parent, width=200, height=500):
-        tk.Frame.__init__(
-            self, parent, width=width, height=height, background="#303030"
-        )
-        self.buttons = [self.create_button(i) for i in range(1, 10)]
-        # for i in range(1, 10):
-        #     tk.Button(self, text=f"Button {i}", command=lambda: self.user_click()).pack(side=tk.TOP, pady=10)
+class SideView(tk.Frame):
+    def __init__(self, parent, width: int, height: int, usernames: List[str], bg, text_color):
+        tk.Frame.__init__(self, parent, width=width, height=height, background=bg)
+        self.frame_width = width
+        self.frame_height = height
+        self.bg = bg
+        self.text_color = text_color
+        # create label "send message to"
+        self.label_send_message_to = tk.Label(self, text="Send message to:", bg=bg, fg=text_color)
+        self.label_send_message_to.grid(row=0, column=0, sticky="w", padx=20, pady=20)
+        self.usernames = [self._create_user_button(username, i) for i, username in enumerate(usernames)]
+        self.pack(fill=tk.BOTH, side=tk.LEFT)
 
-    def user_click(self, i):
-        logging.info(f"User clicked button {i}")
+    def _create_user_button(self, username, index):
+        button = tk.Button(self, text=username, width=10,
+                           command=lambda: self._user_message(username))
+        button.grid(row=index + 1, column=0, sticky="w", padx=20, pady=20)
+        return button
 
-    def create_button(self, i):
-        tk.Button(self, text=f"Button {i}", command=lambda: self.user_click(i)).pack(
-            side=tk.TOP, pady=10
-        )
+    def _user_message(self, username):
+        logging.info(f"User {username} clicked")
 
 
 if __name__ == "__main__":
     root = tk.Tk()
-    root.title("HeaderView")
+    root.title("Login/Registration")
     root.geometry("800x600")
-    header_view = HeaderView(root)
-    header_view.pack_propagate(0)
-    header_view.pack()
-    side_bar_view = SideBarView(root, width=200, height=500)
-    side_bar_view.pack(side=tk.LEFT, fill=tk.BOTH)
-    header_view.pack_widgets()
+    root.resizable(False, False)
+    app = HeaderView(root, 800, 100, "John", bg=BLACK, text_color=WHITE)
+    side_view = SideView(root, 200, 700, ["John", "Jane", "Jack"],
+                         bg=BLACK, text_color=WHITE)
     root.mainloop()
+    logging.info("Exiting")
