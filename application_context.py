@@ -42,11 +42,13 @@ class ApplicationContext:
         try:
             hashed_password = EncryptionContext.hash_password(password)
             self.__db.add_user(username, hashed_password)
-            enc_context = EncryptionContext(is_new_user=True,
-                                            username=username,
-                                            user_passphrase=password)
+            enc_context = EncryptionContext(
+                is_new_user=True, username=username, user_passphrase=password
+            )
             self.__user_context = UserContext(username, enc_context)
-            self.__db.add_user_public_key(username, enc_context.public_key.decode('utf-8'))
+            self.__db.add_user_public_key(
+                username, enc_context.public_key.decode("utf-8")
+            )
             logging.info("User {} registered successfully".format(username))
         except UniqueViolation as e:
             pass
@@ -60,10 +62,12 @@ class ApplicationContext:
             logging.info("Password for user {} is incorrect".format(username))
             return
         public_key = self.__db.get_user_public_key(username)[0][0]
-        enc_context = EncryptionContext(is_new_user=False,
-                                        user_passphrase=password,
-                                        username=username,
-                                        user_public_key=public_key.encode('utf-8'))
+        enc_context = EncryptionContext(
+            is_new_user=False,
+            user_passphrase=password,
+            username=username,
+            user_public_key=public_key.encode("utf-8"),
+        )
         self.__user_context = UserContext(username, enc_context)
         logging.info("User {} logged in successfully".format(username))
 
@@ -75,8 +79,9 @@ class ApplicationContext:
         if receiver_public_key is None:
             logging.info("User {} does not exist".format(to_user))
             return
-        cipher_text, session_key = self.__user_context.enc_context.encrypt_message(message=file,
-                                                                                   receiver_public_key=receiver_public_key)
+        cipher_text, session_key = self.__user_context.enc_context.encrypt_message(
+            message=file, receiver_public_key=receiver_public_key
+        )
         file_uuid = str(uuid.uuid4())
         self._save_file(cipher_text, file_uuid)
         self.__db.send_user_message(
@@ -84,7 +89,7 @@ class ApplicationContext:
             to_user=to_user,
             message_uuid=file_uuid,
             session_key=session_key,
-            file_type=file_type
+            file_type=file_type,
         )
         logging.info("Message sent successfully")
 
@@ -95,12 +100,14 @@ class ApplicationContext:
         rows = self.__db.get_user_messages(self.__user_context.username)
         messages: List[UserMessage] = []
         for row in rows:
-            m = UserMessage(from_user=self.__user_context.username,
-                            to_user=row[0],
-                            file_uuid=row[1],
-                            file_type=row[2],
-                            send_at=row[3],
-                            session_key=row[4])
+            m = UserMessage(
+                from_user=self.__user_context.username,
+                to_user=row[0],
+                file_uuid=row[1],
+                file_type=row[2],
+                send_at=row[3],
+                session_key=row[4],
+            )
             messages.append(m)
             print(m)
         return messages
@@ -110,9 +117,9 @@ class ApplicationContext:
         if cipher_text is None:
             logging.info("Message {} does not exist".format(message_uuid))
             return
-        decrypted_message = self.__user_context.enc_context.decrypt_message(cipher_text=cipher_text,
-                                                                            enc_session_key=session_key,
-                                                                            cipher_nonce=nonce)
+        decrypted_message = self.__user_context.enc_context.decrypt_message(
+            cipher_text=cipher_text, enc_session_key=session_key, cipher_nonce=nonce
+        )
         logging.info("Message {} downloaded successfully".format(message_uuid))
         return decrypted_message
 
