@@ -1,12 +1,14 @@
-from typing import Optional, List
 import logging
+import os
+import uuid
+from dataclasses import dataclass
+from datetime import datetime
+from typing import Optional, List
+
+from psycopg2.errors import UniqueViolation
+
 from db.database import DB
 from encryption.encryption_context import EncryptionContext
-from psycopg2.errors import UniqueViolation
-from dataclasses import dataclass
-import uuid
-import os
-from datetime import datetime
 
 logging.basicConfig(level=logging.INFO)
 
@@ -144,6 +146,9 @@ class ApplicationContext:
     @property
     def get_public_key(self):
         return self.__user_context.enc_context.public_key
+
+    def get_users(self) -> List[str]:
+        return [username[0] for username in self.__db.get_users(except_user=self.__user_context.username)]
 
 
 if __name__ == "__main__":

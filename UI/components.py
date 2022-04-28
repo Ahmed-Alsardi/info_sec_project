@@ -20,7 +20,7 @@ class ComponentName(Enum):
 
 class HeaderComponent(tk.Frame):
     def __init__(self, parent, width: int, height: int, username: str, bg, text_color):
-        tk.Frame.__init__(self, parent, width=width, height=height, background=bg)
+        tk.Frame.__init__(self, parent, width=width, height=height, background=bg, name="header")
         self.parent = parent
         self.username = username
         self.bg = bg
@@ -52,7 +52,7 @@ class SideComponent(tk.Frame):
     def __init__(
             self, parent, width: int, height: int, usernames: List[str], bg, text_color
     ):
-        tk.Frame.__init__(self, parent, width=width, height=height, background=bg)
+        tk.Frame.__init__(self, parent, width=width, height=height, background=bg, name="side")
         self.parent = parent
         self.bg = bg
         self.text_color = text_color
@@ -89,7 +89,7 @@ class MessageComponent(tk.Frame):
             text_color,
             message_list: List[UserMessage],
     ):
-        tk.Frame.__init__(self, parent, width=width, height=height, background=bg)
+        tk.Frame.__init__(self, parent, width=width, height=height, background=bg, name="message")
         self.bg = bg
         self.parent = parent
         self.text_color = text_color
@@ -132,7 +132,7 @@ class SendComponent(tk.Frame):
     def __init__(
             self, parent, width: int, height: int, bg: str, text_color: str, username: str
     ):
-        tk.Frame.__init__(self, parent, width=width, height=height, background=bg)
+        tk.Frame.__init__(self, parent, width=width, height=height, background=bg, name="send")
         self.parent = parent
         self.file_path = None
         self.bg = bg

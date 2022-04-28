@@ -1,15 +1,16 @@
-import psycopg2
 import logging
+
+import psycopg2
 
 logging.basicConfig(level=logging.INFO)
 
 
 class DB:
     def __init__(
-        self,
-        db_name="infosec",
-        db_user="infosec",
-        db_password="infosec",
+            self,
+            db_name="infosec",
+            db_user="infosec",
+            db_password="infosec",
         db_host="localhost",
         db_port=5435,
     ):
@@ -27,6 +28,7 @@ class DB:
         # Create Schema
         logging.info("connection to DB")
         self._create_schema()
+        logging.info("schema created")
 
     def _create_schema(self):
         with self.conn.cursor() as cur:
@@ -106,6 +108,13 @@ class DB:
                 "SELECT to_user, message_uuid, file_type, send_at, session_key FROM app_messages WHERE to_user = %s",
                 (username,),
             )
+            return cur.fetchall()
+
+    def get_users(self, except_user):
+        with self.conn.cursor() as cur:
+            cur.execute("""
+            SELECT username FROM app_users WHERE username != %s
+            """, (except_user,))
             return cur.fetchall()
 
 
