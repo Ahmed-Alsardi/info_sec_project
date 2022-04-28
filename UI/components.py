@@ -114,7 +114,7 @@ class MessageComponent(tk.Frame):
         )
         from_user.grid(row=i + 1, column=0, sticky="w", padx=10, pady=10)
         send_at = tk.Label(
-            self, text=f"Send at: {message.send_at}", bg=self.bg, fg=self.text_color
+            self, text=f"Send at: {message.send_at.strftime('%b %d %Y %H:%M:%S')}", bg=self.bg, fg=self.text_color
         )
         send_at.grid(row=i + 1, column=1, sticky="w", padx=10, pady=10)
         # download button

@@ -2,7 +2,7 @@ import logging
 import tkinter as tk
 
 from UI.components import (
-    ComponentName, MessageComponent, HeaderComponent, SideComponent,
+    ComponentName, MessageComponent, HeaderComponent, SideComponent, SendComponent,
 )
 from UI.utility import WHITE, BLACK
 from application_context import ApplicationContext
@@ -36,7 +36,7 @@ class WindowController(tk.Tk):
 
     def _delete_current_main_frame(self):
         for frame in self.winfo_children():
-            if str(frame) == "message" or str(frame) == "send":
+            if str(frame) == ".message" or str(frame) == ".send":
                 frame.destroy()
         logging.info("Deleting current frame")
 
@@ -52,7 +52,12 @@ class WindowController(tk.Tk):
         message_frame.pack(fill=tk.BOTH, expand=True)
 
     def _load_send_frame(self, **kwargs):
+        assert "username" in kwargs
         logging.info("Loading send frame")
+        username = kwargs["username"]
+        send_frame = SendComponent(self, width=self.frame_width, height=self.frame_height,
+                                   bg=WHITE, text_color=BLACK, username=username)
+        send_frame.pack(fill=tk.BOTH, expand=True)
 
     def _load_default_frames(self):
         header_frame = HeaderComponent(self, width=800, height=100,
