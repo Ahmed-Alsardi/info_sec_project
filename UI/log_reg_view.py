@@ -1,14 +1,14 @@
-import tkinter as tk
 import logging
+import tkinter as tk
 
-logging.basicConfig(level=logging.INFO, format=' %(asctime)s - %(levelname)s - %(message)s')
+logging.basicConfig(
+    level=logging.INFO, format=" %(asctime)s - %(levelname)s - %(message)s"
+)
 
 
 class LoginRegistrationView(tk.Frame):
     def __init__(self, parent, width, height):
-        tk.Frame.__init__(self, master=parent,
-                          width=width,
-                          height=height)
+        tk.Frame.__init__(self, master=parent, width=width, height=height)
         self.frame_width = width
         self.frame_height = height
 
@@ -25,7 +25,9 @@ class LoginRegistrationView(tk.Frame):
         # create login button
         self.login_button = tk.Button(self, text="Login", command=self.login, width=15)
         self.login_button.grid(row=2, column=0, columnspan=2, sticky=tk.W)
-        self.register_button = tk.Button(self, text="Register", command=self.register, width=15)
+        self.register_button = tk.Button(
+            self, text="Register", command=self.register, width=15
+        )
         self.register_button.grid(row=2, column=1, columnspan=2, sticky=tk.E)
 
         self.place(x=250, y=220)
