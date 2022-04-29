@@ -43,7 +43,9 @@ class ApplicationContext:
         """
         try:
             hashed_password = EncryptionContext.hash_password(password)
-            self.__db.add_user(username, hashed_password)
+            if not self.__db.add_user(username, hashed_password):
+                logging.info("User {} already exists".format(username))
+                return False
             enc_context = EncryptionContext(
                 is_new_user=True, username=username, user_passphrase=password
             )
@@ -133,7 +135,7 @@ class ApplicationContext:
 
     @property
     def username(self):
-        return self.__user_context.username
+        return self.__user_context.username if self.__user_context else None
 
     def _save_file(self, cipher_text, file_uuid):
         path = os.path.dirname(__file__)

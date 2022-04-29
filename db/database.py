@@ -1,6 +1,7 @@
 import logging
 
 import psycopg2
+from psycopg2.errors import UniqueViolation, InFailedSqlTransaction
 
 logging.basicConfig(level=logging.INFO)
 
@@ -61,12 +62,22 @@ class DB:
             )
 
     def add_user(self, username, password):
-        with self.conn.cursor() as cur:
-            cur.execute(
-                "INSERT INTO app_users(username, password) VALUES(%s, %s)",
-                (username, password),
-            )
-        self.conn.commit()
+        try:
+            with self.conn.cursor() as cur:
+                cur.execute(
+                    "INSERT INTO app_users(username, password) VALUES(%s, %s)",
+                    (username, password),
+                )
+            self.conn.commit()
+            return True
+        except UniqueViolation:
+            logging.error("user already exists")
+            return False
+        except InFailedSqlTransaction as e:
+            logging.error(e)
+            logging.error("Fail Transaction")
+            self.conn.rollback()
+            return False
 
     def get_user_by_username(self, username):
         with self.conn.cursor() as cur:
@@ -119,4 +130,4 @@ class DB:
 
 
 if __name__ == "__main__":
-    db = DB("infosec", "infosec", "infosec", "localhost", "5435")
+    db = DB("infosec", "infosec", "infosec", "localhost", 5435)

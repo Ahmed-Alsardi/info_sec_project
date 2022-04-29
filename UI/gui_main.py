@@ -8,7 +8,7 @@ from application_context import ApplicationContext
 
 if __name__ == "__main__":
     app_context = ApplicationContext()
-    app_context.login("test", "test")
+    # app_context.login("test", "test")
     root = WindowController(
         frame_width=600,
         frame_height=600,

@@ -32,7 +32,7 @@ class WindowController(tk.Tk):
         self.frame_width = frame_width
         self.frame_height = frame_height
         self.__application_context = application_context
-        if application_context.username is not None:
+        if application_context.username is None:
             self._load_login_frame()
         else:
             self._load_dashboard_frames()  # default frame
