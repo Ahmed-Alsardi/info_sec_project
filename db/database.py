@@ -108,7 +108,9 @@ class DB:
     ):
         with self.conn.cursor() as cur:
             cur.execute(
-                "INSERT INTO app_messages(from_user, message_uuid, file_type, to_user, session_key) VALUES(%s, %s, %s, %s, %s)",
+                """
+                INSERT INTO app_messages(from_user, message_uuid, file_type, to_user, session_key)
+                VALUES(%s, %s, %s, %s, %s)""",
                 (from_user, message_uuid, file_type, to_user, session_key),
             )
         self.conn.commit()
@@ -116,7 +118,7 @@ class DB:
     def get_user_messages(self, username):
         with self.conn.cursor() as cur:
             cur.execute(
-                "SELECT to_user, message_uuid, file_type, send_at, session_key FROM app_messages WHERE to_user = %s",
+                "SELECT from_user, message_uuid, file_type, send_at, session_key FROM app_messages WHERE to_user = %s",
                 (username,),
             )
             return cur.fetchall()

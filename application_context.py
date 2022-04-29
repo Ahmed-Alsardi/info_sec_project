@@ -101,7 +101,7 @@ class ApplicationContext:
             session_key=session_key,
             file_type=file_type,
         )
-        logging.info("Message sent successfully")
+        logging.info(f"Message sent from: {self.__user_context.username} to {to_user}")
 
     def get_messages(self):
         if self.__user_context is None:
@@ -111,15 +111,14 @@ class ApplicationContext:
         messages: List[UserMessage] = []
         for row in rows:
             m = UserMessage(
-                from_user=self.__user_context.username,
-                to_user=row[0],
+                to_user=self.__user_context.username,
+                from_user=row[0],
                 file_uuid=row[1],
                 file_type=row[2],
                 send_at=row[3],
                 session_key=row[4],
             )
             messages.append(m)
-            print(m)
         return messages
 
     def download_message(self, message_uuid, session_key):

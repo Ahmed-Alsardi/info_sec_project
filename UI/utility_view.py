@@ -50,6 +50,12 @@ class WindowController(tk.Tk):
         elif new_frame == ComponentName.DASHBOARD:
             self._login_attempt(**kwargs)
 
+    def send_file(self, to_user, file_name, file_path):
+        logging.info(f"Sending file {file_path} to {to_user}")
+        with open(file_path, "rb") as f:
+            file_data = f.read()
+            self.__application_context.send_message(to_user=to_user, file=file_data, file_type=file_name)
+
     def _delete_frames(self, all=False):
         for frame in self.winfo_children():
             if all:

@@ -202,6 +202,9 @@ class SendComponent(tk.Frame):
                 self, text="Please select file first", bg=self.bg, fg=self.text_color
             ).grid(row=3, column=0, sticky="w", padx=20, pady=20)
             return
+        self.parent.send_file(to_user=self.username,
+                              file_name=self._extract_file_name(self.file_path.name),
+                              file_path=self.file_path.name)
         logging.info(f"File uploaded")
         tk.Label(self, text="File uploaded", bg=self.bg, fg=self.text_color).grid(
             row=3, column=0, sticky="w", padx=20, pady=20
