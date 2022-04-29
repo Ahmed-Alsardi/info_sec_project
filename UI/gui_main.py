@@ -10,7 +10,10 @@ if __name__ == "__main__":
     app_context = ApplicationContext()
     app_context.login("test", "test")
     root = WindowController(
-        frame_width=600, frame_height=600, default_frame=ComponentName.MESSAGE, application_context=app_context
+        frame_width=600,
+        frame_height=600,
+        default_frame=ComponentName.MESSAGE,
+        application_context=app_context,
     )
     root.title("Login/Registration")
     root.geometry("800x600")

@@ -52,26 +52,32 @@ class ApplicationContext:
                 username, enc_context.public_key.decode("utf-8")
             )
             logging.info("User {} registered successfully".format(username))
+            return True
         except UniqueViolation as e:
-            pass
+            return False
 
     def login(self, username, password):
-        username, hashed_password = self.__db.get_user_by_username(username)[0]
-        if username is None:
-            logging.info("User {} does not exist".format(username))
-            return
-        if not EncryptionContext.check_password(password, hashed_password):
-            logging.info("Password for user {} is incorrect".format(username))
-            return
-        public_key = self.__db.get_user_public_key(username)[0][0]
-        enc_context = EncryptionContext(
-            is_new_user=False,
-            user_passphrase=password,
-            username=username,
-            user_public_key=public_key.encode("utf-8"),
-        )
-        self.__user_context = UserContext(username, enc_context)
-        logging.info("User {} logged in successfully".format(username))
+        try:
+            username, hashed_password = self.__db.get_user_by_username(username)[0]
+            if username is None:
+                logging.info("User {} does not exist".format(username))
+                return False
+            if not EncryptionContext.check_password(password, hashed_password):
+                logging.info("Password for user {} is incorrect".format(username))
+                return
+            public_key = self.__db.get_user_public_key(username)[0][0]
+            enc_context = EncryptionContext(
+                is_new_user=False,
+                user_passphrase=password,
+                username=username,
+                user_public_key=public_key.encode("utf-8"),
+            )
+            self.__user_context = UserContext(username, enc_context)
+            logging.info("User {} logged in successfully".format(username))
+            return True
+        except Exception as e:
+            logging.error(e)
+            return False
 
     def send_message(self, to_user, file, file_type):
         if self.__user_context is None:

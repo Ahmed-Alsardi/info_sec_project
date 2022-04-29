@@ -14,13 +14,17 @@ logging.basicConfig(
 
 
 class ComponentName(Enum):
+    DASHBOARD = 4
     MESSAGE = 1
     SEND = 2
+    LOGIN_REGISTRATION = 3
 
 
 class HeaderComponent(tk.Frame):
     def __init__(self, parent, width: int, height: int, username: str, bg, text_color):
-        tk.Frame.__init__(self, parent, width=width, height=height, background=bg, name="header")
+        tk.Frame.__init__(
+            self, parent, width=width, height=height, background=bg, name="header"
+        )
         self.parent = parent
         self.username = username
         self.bg = bg
@@ -52,7 +56,9 @@ class SideComponent(tk.Frame):
     def __init__(
             self, parent, width: int, height: int, usernames: List[str], bg, text_color
     ):
-        tk.Frame.__init__(self, parent, width=width, height=height, background=bg, name="side")
+        tk.Frame.__init__(
+            self, parent, width=width, height=height, background=bg, name="side"
+        )
         self.parent = parent
         self.bg = bg
         self.text_color = text_color
@@ -89,7 +95,9 @@ class MessageComponent(tk.Frame):
             text_color,
             message_list: List[UserMessage],
     ):
-        tk.Frame.__init__(self, parent, width=width, height=height, background=bg, name="message")
+        tk.Frame.__init__(
+            self, parent, width=width, height=height, background=bg, name="message"
+        )
         self.bg = bg
         self.parent = parent
         self.text_color = text_color
@@ -114,7 +122,10 @@ class MessageComponent(tk.Frame):
         )
         from_user.grid(row=i + 1, column=0, sticky="w", padx=10, pady=10)
         send_at = tk.Label(
-            self, text=f"Send at: {message.send_at.strftime('%b %d %Y %H:%M:%S')}", bg=self.bg, fg=self.text_color
+            self,
+            text=f"Send at: {message.send_at.strftime('%b %d %Y %H:%M:%S')}",
+            bg=self.bg,
+            fg=self.text_color,
         )
         send_at.grid(row=i + 1, column=1, sticky="w", padx=10, pady=10)
         # download button
@@ -132,7 +143,9 @@ class SendComponent(tk.Frame):
     def __init__(
             self, parent, width: int, height: int, bg: str, text_color: str, username: str
     ):
-        tk.Frame.__init__(self, parent, width=width, height=height, background=bg, name="send")
+        tk.Frame.__init__(
+            self, parent, width=width, height=height, background=bg, name="send"
+        )
         self.parent = parent
         self.file_path = None
         self.bg = bg
