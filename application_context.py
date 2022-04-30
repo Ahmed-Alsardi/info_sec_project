@@ -157,6 +157,10 @@ class ApplicationContext:
     def get_users(self) -> List[str]:
         return [username[0] for username in self.__db.get_users(except_user=self.__user_context.username)]
 
+    def logout(self):
+        logging.info(f"User {self.__user_context.username} logged out")
+        self.__user_context = None
+
 
 if __name__ == "__main__":
     username = "test12"

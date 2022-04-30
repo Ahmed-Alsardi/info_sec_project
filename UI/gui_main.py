@@ -3,7 +3,7 @@ import logging
 from UI.components import (
     ComponentName,
 )
-from UI.utility_view import WindowController
+from UI.window_controller import WindowController
 from application_context import ApplicationContext
 
 if __name__ == "__main__":

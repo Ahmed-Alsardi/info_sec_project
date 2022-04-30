@@ -23,7 +23,7 @@ class LoginRegistrationComponent(tk.Frame):
         # create password label and entry boxes
         self.password_label = tk.Label(self, text="Password:", bg=bg, fg=text_color)
         self.password_label.grid(row=1, column=0, sticky=tk.W)
-        self.password_entry = tk.Entry(self, bg=bg, fg=text_color)
+        self.password_entry = tk.Entry(self, show="*", bg=bg, fg=text_color)
         self.password_entry.grid(row=1, column=1, sticky=tk.W)
         # create login button
         self.login_button = tk.Button(self, text="Login", command=self.login, width=15)
@@ -36,7 +36,7 @@ class LoginRegistrationComponent(tk.Frame):
     def login(self, **kwargs):
         username = self.username_entry.get()
         password = self.password_entry.get()
-        self.parent.switch_frame(ComponentName.DASHBOARD,
+        self.parent.switch_frame(ComponentName.LOGIN_ATTEMPT,
                                  username=username,
                                  password=password,
                                  new_user=False)
@@ -45,7 +45,7 @@ class LoginRegistrationComponent(tk.Frame):
     def register(self, **kwargs):
         username = self.username_entry.get()
         password = self.password_entry.get()
-        self.parent.switch_frame(ComponentName.DASHBOARD,
+        self.parent.switch_frame(ComponentName.LOGIN_ATTEMPT,
                                  username=username,
                                  password=password,
                                  new_user=True)

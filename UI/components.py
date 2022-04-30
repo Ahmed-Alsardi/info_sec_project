@@ -14,10 +14,11 @@ logging.basicConfig(
 
 
 class ComponentName(Enum):
-    DASHBOARD = 4
+    LOGIN_ATTEMPT = 4
     MESSAGE = 1
     SEND = 2
     LOGIN_REGISTRATION = 3
+    LOGOUT = 5
 
 
 class HeaderComponent(tk.Frame):
@@ -43,13 +44,20 @@ class HeaderComponent(tk.Frame):
         self.button_my_message.grid(
             row=0, column=2, columnspan=2, sticky="e", padx=20, pady=20
         )
+        # create logout button
+        self.button_logout = tk.Button(self, text="Logout", command=self.logout)
+        self.button_logout.grid(row=0, column=4, sticky="e", padx=20, pady=20)
         self.pack(
-            fill=tk.BOTH,
+            fill=tk.BOTH
         )
 
     def my_message(self):
         self.parent.switch_frame(ComponentName.MESSAGE)
         logging.info("My message button clicked")
+
+    def logout(self):
+        self.parent.switch_frame(ComponentName.LOGOUT)
+        logging.info("Logout button clicked")
 
 
 class SideComponent(tk.Frame):

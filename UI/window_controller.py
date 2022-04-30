@@ -47,8 +47,10 @@ class WindowController(tk.Tk):
             self._load_send_frame(**kwargs)
         elif new_frame == ComponentName.LOGIN_REGISTRATION:
             self._load_login_frame()
-        elif new_frame == ComponentName.DASHBOARD:
+        elif new_frame == ComponentName.LOGIN_ATTEMPT:
             self._login_attempt(**kwargs)
+        elif new_frame == ComponentName.LOGOUT:
+            self._logout()
 
     def send_file(self, to_user, file_name, file_path):
         logging.info(f"Sending file {file_path} to {to_user}")
@@ -66,7 +68,7 @@ class WindowController(tk.Tk):
         logging.info("Deleting current frame")
 
     def _load_message_frame(self, **kwargs):
-        if self.current_frame == ComponentName.LOGIN_REGISTRATION or self.current_frame == ComponentName.DASHBOARD:
+        if self.current_frame == ComponentName.LOGIN_REGISTRATION or self.current_frame == ComponentName.LOGIN_ATTEMPT:
             self._layout_frames()
         logging.info("Loading message frame")
         message_frame = MessageComponent(
@@ -149,3 +151,8 @@ class WindowController(tk.Tk):
                 self.switch_frame(ComponentName.MESSAGE)
             else:
                 tk.Label(self, text="Incorrect username or password", bg=WHITE, fg=BLACK).pack()
+
+    def _logout(self):
+        self.__application_context.logout()
+        self._delete_frames(all=True)
+        self._load_login_frame()
