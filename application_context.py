@@ -122,7 +122,7 @@ class ApplicationContext:
         return messages
 
     def download_message(self, message_uuid, session_key):
-        nonce, cipher_text = self._load_file(message_uuid)
+        cipher_text = self._load_file(message_uuid)
         if cipher_text is None:
             logging.info("Message {} does not exist".format(message_uuid))
             return
@@ -139,16 +139,13 @@ class ApplicationContext:
     def _save_file(self, cipher_text, file_uuid):
         path = os.path.dirname(__file__)
         with open(f"{path}/encryption/media/{file_uuid}.bin", "wb") as f:
-            print(f"1: {len(cipher_text[0])}\n2: {len(cipher_text[1])}")
-            [f.write(chunk) for chunk in cipher_text]
+            f.write(cipher_text)
 
     def _load_file(self, message_uuid):
         path = os.path.dirname(__file__)
         with open(f"{path}/encryption/media/{message_uuid}.bin", "rb") as f:
-            nonce = f.read(8)
             cipher_text = f.read()
-            print(f"1: {len(cipher_text)}\n2: {len(nonce)}")
-        return nonce, cipher_text
+        return cipher_text
 
     @property
     def get_public_key(self):
