@@ -56,7 +56,7 @@ class WindowController(tk.Tk):
         logging.info(f"Sending file {file_path} to {to_user}")
         with open(file_path, "rb") as f:
             file_data = f.read()
-            self.__application_context.send_message(to_user=to_user, file=file_data, file_type=file_name)
+            self.__application_context.send_message(to_user=to_user, file=file_data, file_name=file_name)
 
     def _delete_frames(self, all=False):
         for frame in self.winfo_children():

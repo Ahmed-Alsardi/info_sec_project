@@ -144,7 +144,7 @@ class MessageComponent(tk.Frame):
         logging.info(f"Message {message} created")
 
     def _download_message(self, message: UserMessage):
-        logging.info(f"Download message {message.file_uuid}")
+        logging.info(f"Download message {message.file_id}")
 
 
 class SendComponent(tk.Frame):

@@ -13,7 +13,7 @@ def create_messages(context: ApplicationContext):
         context.login(username=f'user{i}', password=f'pass{i}')
         for j in range(1, randint(2, 10)):
             message = f'Message {i} to {j}'
-            context.send_message(to_user=f'user{j}', file=message.encode("utf-8"), file_type='text')
+            context.send_message(to_user=f'user{j}', file=message.encode("utf-8"), file_name='text')
 
 
 if __name__ == "__main__":

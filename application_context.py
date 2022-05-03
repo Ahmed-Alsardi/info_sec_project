@@ -1,11 +1,9 @@
 from __future__ import annotations
 
 import logging
-import os
-import uuid
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional, List, Union
+from typing import Optional, List
 
 from psycopg2.errors import UniqueViolation
 
@@ -26,9 +24,15 @@ class UserMessage:
     from_user: str
     to_user: str
     send_at: datetime
-    file_uuid: str
-    file_type: str
-    session_key: str | bytes
+    file_id: int
+    file_name: str
+
+
+@dataclass
+class DownloadUserMessages:
+    file_id: int
+    file_name: str
+    file: bytes
 
 
 class ApplicationContext:
@@ -58,6 +62,7 @@ class ApplicationContext:
             logging.info("User {} registered successfully".format(username))
             return True
         except UniqueViolation as e:
+            logging.error(e)
             return False
 
     def login(self, username, password):
@@ -83,7 +88,7 @@ class ApplicationContext:
             logging.error(e)
             return False
 
-    def send_message(self, to_user, file, file_type):
+    def send_message(self, to_user, file, file_name):
         if self.__user_context is None:
             logging.info("User is not logged in")
             return
@@ -91,64 +96,52 @@ class ApplicationContext:
         if receiver_public_key is None:
             logging.info("User {} does not exist".format(to_user))
             return
-        cipher_text, session_key = self.__user_context.enc_context.encrypt_message(
-            message=file, receiver_public_key=receiver_public_key
+        cipher_text, session_key, file_name = self.__user_context.enc_context.encrypt_message(
+            message=file, receiver_public_key=receiver_public_key, file_name=file_name
         )
-        file_uuid = str(uuid.uuid4())
-        self._save_file(cipher_text, file_uuid)
         self.__db.send_user_message(
             from_user=self.__user_context.username,
             to_user=to_user,
-            message_uuid=file_uuid,
             session_key=session_key,
-            file_type=file_type,
+            file_name=file_name,
+            file=cipher_text
         )
         logging.info(f"Message sent from: {self.__user_context.username} to {to_user}")
-        return file_uuid, session_key
 
-    def get_messages(self) -> Union[List[UserMessage], None]:
+    def get_messages(self) -> List[UserMessage] | None:
         if self.__user_context is None:
             logging.info("User is not logged in")
             return None
         rows = self.__db.get_user_messages(self.__user_context.username)
         messages: List[UserMessage] = []
         for row in rows:
+            file_name = self._decrypt_file_name(name=bytes(row[2]), session_key=bytes(row[4]))
             m = UserMessage(
                 to_user=self.__user_context.username,
                 from_user=row[0],
-                file_uuid=row[1],
-                file_type=row[2],
+                file_id=row[1],
+                file_name=file_name,
                 send_at=row[3],
-                session_key=bytes(row[4]),
             )
             messages.append(m)
         return messages
 
-    def download_message(self, message_uuid, session_key):
-        cipher_text = self._load_file(message_uuid)
+    def download_message(self, message_id) -> DownloadUserMessages | None:
+        cipher_text, session_key, file_name = self.__db.get_message_by_id(message_id=message_id)
         if cipher_text is None:
-            logging.info("Message {} does not exist".format(message_uuid))
-            return
+            logging.info(f"Message with id {message_id} does not exist")
+            return None
         decrypted_message = self.__user_context.enc_context.decrypt_message(
-            cipher_text=cipher_text, enc_session_key=session_key
+            cipher_text=bytes(cipher_text), enc_session_key=bytes(session_key)
         )
-        logging.info("Message {} downloaded successfully".format(message_uuid))
-        return decrypted_message
+        file_name = self.__user_context.enc_context.decrypt_message(cipher_text=bytes(file_name),
+                                                                    enc_session_key=bytes(session_key))
+        logging.info(f"Message with id {message_id} downloaded successfully")
+        return DownloadUserMessages(file_name=file_name, file=decrypted_message, file_id=message_id)
 
     @property
     def username(self):
         return self.__user_context.username if self.__user_context else None
-
-    def _save_file(self, cipher_text, file_uuid):
-        path = os.path.dirname(__file__)
-        with open(f"{path}/encryption/media/{file_uuid}.bin", "wb") as f:
-            f.write(cipher_text)
-
-    def _load_file(self, message_uuid):
-        path = os.path.dirname(__file__)
-        with open(f"{path}/encryption/media/{message_uuid}.bin", "rb") as f:
-            cipher_text = f.read()
-        return cipher_text
 
     @property
     def get_public_key(self):
@@ -160,6 +153,10 @@ class ApplicationContext:
     def logout(self):
         logging.info(f"User {self.__user_context.username} logged out")
         self.__user_context = None
+
+    def _decrypt_file_name(self, name: bytes, session_key: bytes) -> str:
+        return self.__user_context.enc_context.decrypt_message(cipher_text=name,
+                                                               enc_session_key=session_key).decode("utf-8")
 
 
 if __name__ == "__main__":
@@ -175,14 +172,14 @@ if __name__ == "__main__":
     # ========== End of Register users ==========
 
     app_context.login(username=username, password=password)
-    # f_uuid, session_key = app_context.send_message(to_user=username1, file=b"Hello", file_type="text")
-    # # app_context.download_message(file_uuid, session_key)
-    # # logout
-    # app_context.logout()
-    # app_context.login(username=username1, password=password1)
+    app_context.send_message(to_user=username1, file=b"Hello", file_name="text.txt")
+    # logout
+    app_context.logout()
+    app_context.login(username=username1, password=password1)
     # print(f"equal: {session_key == app_context.get_messages()[0].session_key}")
-    # for m in app_context.get_messages():
-    # print(app_context.download_message(m.file_uuid, m.session_key))
+    for m in app_context.get_messages():
+        print(app_context.download_message(m.file_id))
+
     # app_context.logout()
     # for m in app_context.get_messages():
     #     d_message = app_context.download_message(m.file_uuid, m.session_key)

@@ -15,7 +15,7 @@ class EncryptionContext:
             is_new_user: bool,
             user_passphrase: str,
             username: str,
-        user_public_key: str = None,
+            user_public_key: str = None,
     ):
         sha3_256 = SHA3_256.new()
         self.__user_passphrase = sha3_256.update(
@@ -63,16 +63,17 @@ class EncryptionContext:
 
     @staticmethod
     def encrypt_message(
-            message: bytes, receiver_public_key: str
-    ) -> tuple[bytes, bytes]:
+            message: bytes, receiver_public_key: str, file_name: str
+    ) -> tuple[bytes, bytes, bytes]:
         session_key = utils.generate_session_key()
-        cipher_text = utils.encrypt_message_with_session_key(message, session_key)
+        cipher_text = utils.encrypt_message_with_session_key(message=message, session_key=session_key)
+        file_name_cipher = utils.encrypt_message_with_session_key(message=file_name.encode("utf-8"),
+                                                                  session_key=session_key)
         enc_session_key = utils.encrypt_session_key_with_public_key(
             session_key=session_key,
             public_key=bytes(receiver_public_key, encoding="utf-8")
         )
-        print(f"FROM ENCRYPTION CONTEXT: enc session key: {len(enc_session_key)}\nstart with: {enc_session_key[:10]}")
-        return cipher_text, enc_session_key
+        return cipher_text, enc_session_key, file_name_cipher
 
     def decrypt_message(
             self, cipher_text: bytes, enc_session_key: bytes
@@ -100,8 +101,9 @@ if __name__ == "__main__":
     print(f"public key: {context2.public_key}")
     print(f"username: {context2.username}")
     message = b"hello world"
-    cipher_text, enc_session_key = context.encrypt_message(message=message,
-                                                           receiver_public_key=context2.public_key)
+    cipher_text, enc_session_key, file_name = context.encrypt_message(message=message,
+                                                                      receiver_public_key=context2.public_key,
+                                                                      file_name="test.txt")
     print(f"cipher text: {cipher_text}\nenc session key: {enc_session_key}")
     plain_text = context2.decrypt_message(cipher_text=cipher_text, enc_session_key=enc_session_key)
     print(f"plain text: {plain_text}")

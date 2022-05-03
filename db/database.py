@@ -53,9 +53,9 @@ class DB:
             to_user varchar(63) NOT NULL,
             from_user varchar(63) NOT NULL,
             send_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-            message_uuid varchar(63) NOT NULL,
             session_key BYTEA NOT NULL,
-            file_type VARCHAR(31) NOT NULL,
+            file BYTEA NOT NULL,
+            file_name BYTEA NOT NULL,
             FOREIGN KEY (to_user) REFERENCES app_users(username),
             FOREIGN KEY (from_user) REFERENCES app_users(username))
             """
@@ -104,24 +104,33 @@ class DB:
             return cur.fetchall()
 
     def send_user_message(
-        self, from_user, message_uuid, file_type, to_user, session_key
+            self, from_user, file_name, to_user, session_key, file,
     ):
         with self.conn.cursor() as cur:
             cur.execute(
                 """
-                INSERT INTO app_messages(from_user, message_uuid, file_type, to_user, session_key)
+                INSERT INTO app_messages(from_user, file_name, to_user, session_key, file)
                 VALUES(%s, %s, %s, %s, %s)""",
-                (from_user, message_uuid, file_type, to_user, session_key),
+                (from_user, file_name, to_user, session_key, file),
+
             )
         self.conn.commit()
 
     def get_user_messages(self, username):
         with self.conn.cursor() as cur:
             cur.execute(
-                "SELECT from_user, message_uuid, file_type, send_at, session_key FROM app_messages WHERE to_user = %s",
+                """SELECT 
+                from_user, id, file_name, send_at, session_key FROM app_messages WHERE to_user = %s""",
                 (username,),
             )
             return cur.fetchall()
+
+    def get_message_by_id(self, message_id):
+        with self.conn.cursor() as cur:
+            cur.execute("""
+            SELECT file, session_key, file_name FROM app_messages WHERE id = %s
+            """, (message_id,))
+            return cur.fetchone()
 
     def get_users(self, except_user):
         with self.conn.cursor() as cur:
