@@ -129,18 +129,22 @@ class MessageComponent(tk.Frame):
             self, text=f"From: {message.from_user}", bg=self.bg, fg=self.text_color
         )
         from_user.grid(row=i + 1, column=0, sticky="w", padx=10, pady=10)
+        # file name label
+        file_name = tk.Label(self, text=f"File: {message.file_name}", bg=self.bg, fg=self.text_color)
+        file_name.grid(row=i + 1, column=1, sticky="w", padx=10, pady=10)
+
         send_at = tk.Label(
             self,
             text=f"Send at: {message.send_at.strftime('%b %d %Y %H:%M:%S')}",
             bg=self.bg,
             fg=self.text_color,
         )
-        send_at.grid(row=i + 1, column=1, sticky="w", padx=10, pady=10)
+        send_at.grid(row=i + 1, column=2, sticky="w", padx=10, pady=10)
         # download button
         download_button = tk.Button(
             self, text="Download", command=lambda: self._download_message(message)
         )
-        download_button.grid(row=i + 1, column=2, sticky="e", padx=10, pady=10)
+        download_button.grid(row=i + 1, column=3, sticky="e", padx=10, pady=10)
         logging.info(f"Message {message} created")
 
     def _download_message(self, message: UserMessage):

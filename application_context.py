@@ -134,8 +134,8 @@ class ApplicationContext:
         decrypted_message = self.__user_context.enc_context.decrypt_message(
             cipher_text=bytes(cipher_text), enc_session_key=bytes(session_key)
         )
-        file_name = self.__user_context.enc_context.decrypt_message(cipher_text=bytes(file_name),
-                                                                    enc_session_key=bytes(session_key))
+        file_name = self._decrypt_file_name(name=bytes(file_name),
+                                            session_key=bytes(session_key))
         logging.info(f"Message with id {message_id} downloaded successfully")
         return DownloadUserMessages(file_name=file_name, file=decrypted_message, file_id=message_id)
 
