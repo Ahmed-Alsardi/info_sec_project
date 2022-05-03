@@ -1,12 +1,16 @@
-version: '3'
+version: '3.7'
+
+volumes:
+  info_sec: { }
 
 services:
-
- db:
-   image: postgres:10-alpine
-   environment: 
-    - POSTGRES_DB=infosec
-    - POSTGRES_USER=infosec
-    - POSTGRES_PASSWORD=infosec
-   ports:
-    - "5435:5432"
+  db:
+    image: postgres:10-alpine
+    environment:
+      - POSTGRES_DB=infosec
+      - POSTGRES_USER=infosec
+      - POSTGRES_PASSWORD=infosec
+    ports:
+      - "5435:5432"
+    volumes:
+      - info_sec:/var/lib/postgresql/data
