@@ -63,13 +63,15 @@ class EncryptionContext:
 
     @staticmethod
     def encrypt_message(
-            message: bytes, receiver_public_key: bytes
+            message: bytes, receiver_public_key: str
     ) -> tuple[bytes, bytes]:
         session_key = utils.generate_session_key()
         cipher_text = utils.encrypt_message_with_session_key(message, session_key)
         enc_session_key = utils.encrypt_session_key_with_public_key(
-            session_key, receiver_public_key
+            session_key=session_key,
+            public_key=bytes(receiver_public_key, encoding="utf-8")
         )
+        print(f"FROM ENCRYPTION CONTEXT: enc session key: {len(enc_session_key)}\nstart with: {enc_session_key[:10]}")
         return cipher_text, enc_session_key
 
     def decrypt_message(
