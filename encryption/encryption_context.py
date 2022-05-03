@@ -1,18 +1,20 @@
-import os
-import bcrypt
-from encryption.encryption_utils import EncryptionUtils as utils
-from Crypto.Hash import SHA3_256
 import logging
+import os
+
+import bcrypt
+from Crypto.Hash import SHA3_256
+
+from encryption.encryption_utils import EncryptionUtils as utils
 
 logging.basicConfig(level=logging.INFO)
 
 
 class EncryptionContext:
     def __init__(
-        self,
-        is_new_user: bool,
-        user_passphrase: str,
-        username: str,
+            self,
+            is_new_user: bool,
+            user_passphrase: str,
+            username: str,
         user_public_key: str = None,
     ):
         sha3_256 = SHA3_256.new()
@@ -61,8 +63,8 @@ class EncryptionContext:
 
     @staticmethod
     def encrypt_message(
-        message: bytes, receiver_public_key: bytes
-    ) -> tuple[tuple[bytes, bytes], bytes]:
+            message: bytes, receiver_public_key: bytes
+    ) -> tuple[bytes, bytes]:
         session_key = utils.generate_session_key()
         cipher_text = utils.encrypt_message_with_session_key(message, session_key)
         enc_session_key = utils.encrypt_session_key_with_public_key(
@@ -71,20 +73,33 @@ class EncryptionContext:
         return cipher_text, enc_session_key
 
     def decrypt_message(
-        self, cipher_text: bytes, cipher_nonce: bytes, enc_session_key: bytes
+            self, cipher_text: bytes, enc_session_key: bytes
     ) -> bytes:
         session_key = utils.decrypt_session_key_with_private_key(
             enc_session_key, self.__private_key, self.__user_passphrase
         )
         plain_text = utils.decrypt_message_with_session_key(
-            cipher_text, session_key, cipher_nonce
+            cipher_text, session_key
         )
         return plain_text
 
 
 if __name__ == "__main__":
-    context = EncryptionContext(True, "password", "test")
+    context = EncryptionContext(
+        is_new_user=True,
+        user_passphrase="password",
+        username="test")
     public_key = context.public_key
-    context2 = EncryptionContext(False, "password", "test", public_key)
+    context2 = EncryptionContext(
+        is_new_user=False,
+        user_passphrase="password",
+        username="test",
+        user_public_key=public_key)
     print(f"public key: {context2.public_key}")
     print(f"username: {context2.username}")
+    message = b"hello world"
+    cipher_text, enc_session_key = context.encrypt_message(message=message,
+                                                           receiver_public_key=context2.public_key)
+    print(f"cipher text: {cipher_text}\nenc session key: {enc_session_key}")
+    plain_text = context2.decrypt_message(cipher_text=cipher_text, enc_session_key=enc_session_key)
+    print(f"plain text: {plain_text}")
