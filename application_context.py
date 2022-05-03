@@ -3,7 +3,7 @@ import os
 import uuid
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional, List
+from typing import Optional, List, Union
 
 from psycopg2.errors import UniqueViolation
 
@@ -103,10 +103,10 @@ class ApplicationContext:
         )
         logging.info(f"Message sent from: {self.__user_context.username} to {to_user}")
 
-    def get_messages(self):
+    def get_messages(self) -> Union[List[UserMessage], None]:
         if self.__user_context is None:
             logging.info("User is not logged in")
-            return
+            return None
         rows = self.__db.get_user_messages(self.__user_context.username)
         messages: List[UserMessage] = []
         for row in rows:
@@ -163,13 +163,17 @@ class ApplicationContext:
 
 
 if __name__ == "__main__":
-    username = "test12"
-    password = "test"
+    username = "user1"
+    password = "pass1"
     app_context = ApplicationContext()
     # app_context.register(username=username, password=password)
-    app_context.login(username, password)
-    public_key = app_context.get_public_key
-    enc_context = EncryptionContext(False, username, password, public_key)
-    cipher, session_key = enc_context.encrypt_message(b"test", public_key)
-    plain_text = enc_context.decrypt_message(cipher[0], cipher[1], session_key)
-    print(cipher)
+    app_context.login(username=username, password=password)
+    for m in app_context.get_messages():
+        d_message = app_context.download_message(m.file_uuid, m.session_key)
+        print(d_message)
+    # public_key = app_context.get_public_key
+    # enc_context = EncryptionContext(False, username=username, user_passphrase=password, user_public_key=public_key)
+    # cipher, session_key = enc_context.encrypt_message(b"test", public_key)
+    # plain_text = enc_context.decrypt_message(cipher[0], cipher[1], session_key)
+    # print(cipher)
+    # print(plain_text)
