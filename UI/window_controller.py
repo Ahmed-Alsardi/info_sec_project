@@ -10,7 +10,7 @@ from UI.components import (
 )
 from UI.log_reg_view import LoginRegistrationComponent
 from UI.utility import WHITE, BLACK
-from application_context import ApplicationContext
+from application_context import ApplicationContext, UserMessage, DownloadUserMessage
 
 logging.basicConfig(
     level=logging.INFO, format=" %(asctime)s - %(levelname)s - %(message)s"
@@ -57,6 +57,13 @@ class WindowController(tk.Tk):
         with open(file_path, "rb") as f:
             file_data = f.read()
             self.__application_context.send_message(to_user=to_user, file=file_data, file_name=file_name)
+
+    def download_file(self, message: UserMessage, file_path):
+        download_message: DownloadUserMessage = self.__application_context.download_message(
+            message_id=message.file_id)
+        with open(f"{file_path}/{download_message.file_name}", "wb") as f:
+            f.write(download_message.file)
+        logging.info(f"Downloaded file {download_message.file_name}")
 
     def _delete_frames(self, all=False):
         for frame in self.winfo_children():

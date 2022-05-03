@@ -1,7 +1,7 @@
 import logging
 import tkinter as tk
 from enum import Enum
-from tkinter.filedialog import askopenfile
+from tkinter.filedialog import askopenfile, askdirectory
 from typing import List
 
 from application_context import UserMessage
@@ -124,7 +124,7 @@ class MessageComponent(tk.Frame):
         # pack the frame
         self.pack(fill=tk.BOTH, side=tk.LEFT, expand=True)
 
-    def _create_message_widget(self, message, i):
+    def _create_message_widget(self, message: UserMessage, i):
         from_user = tk.Label(
             self, text=f"From: {message.from_user}", bg=self.bg, fg=self.text_color
         )
@@ -148,6 +148,9 @@ class MessageComponent(tk.Frame):
         logging.info(f"Message {message} created")
 
     def _download_message(self, message: UserMessage):
+        file_path = askdirectory(mustexist=True)
+        print(file_path)
+        self.parent.download_file(message, file_path=file_path)
         logging.info(f"Download message {message.file_id}")
 
 
@@ -191,9 +194,6 @@ class SendComponent(tk.Frame):
         file_path = askopenfile(mode="r", filetypes=self.__supported_file_types)
         if file_path is None:
             return
-        print(type(file_path))
-        print(dir(file_path))
-        print(file_path)
         logging.info(f"File {file_path.name} selected")
         self.file_path = file_path
         self.upload_label = tk.Label(

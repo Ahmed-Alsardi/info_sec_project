@@ -29,7 +29,7 @@ class UserMessage:
 
 
 @dataclass
-class DownloadUserMessages:
+class DownloadUserMessage:
     file_id: int
     file_name: str
     file: bytes
@@ -126,7 +126,7 @@ class ApplicationContext:
             messages.append(m)
         return messages
 
-    def download_message(self, message_id) -> DownloadUserMessages | None:
+    def download_message(self, message_id) -> DownloadUserMessage | None:
         cipher_text, session_key, file_name = self.__db.get_message_by_id(message_id=message_id)
         if cipher_text is None:
             logging.info(f"Message with id {message_id} does not exist")
@@ -137,7 +137,7 @@ class ApplicationContext:
         file_name = self._decrypt_file_name(name=bytes(file_name),
                                             session_key=bytes(session_key))
         logging.info(f"Message with id {message_id} downloaded successfully")
-        return DownloadUserMessages(file_name=file_name, file=decrypted_message, file_id=message_id)
+        return DownloadUserMessage(file_name=file_name, file=decrypted_message, file_id=message_id)
 
     @property
     def username(self):
